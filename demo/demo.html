@@ -9,14 +9,6 @@
 		margin: 0px;
 		padding: 0px;
 	}
-	canvas {
-		position: fixed;
-		height: 100%;
-		left: 0px;
-		top: 0px;
-		width: 100%;
-		z-index: 100;
-	}
 	div.node {
 		cursor: move;
 		position: absolute;
@@ -54,11 +46,6 @@
 
 	$(function() {
 		
-		// some background text
-		for (i = 0; i < 20; i++) {
-			$("body").append($("p:first").clone().show());
-		}
-	
 		// STEP 1: make some nodes
 		
 		// create self node
@@ -111,12 +98,17 @@
 		// add edges
 		$graph.fnEdge(parents, self);
 		$graph.fnEdge(self, children);
+
+		// some background text
+		for (i = 0; i < 20; i++) {
+			$("body").append($("p:first").clone().show());
+		}
 	});
 //--></script>
 </head>
 <body>
 	<p style="display: none;">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
-	<canvas width="1000" height="600"></canvas>
+	<canvas style="z-index: 100;"></canvas>
 	<div id="nodeBase" class="node" style="display: none;">
 		<div class="title"></div>
 		<div class="description"></div>

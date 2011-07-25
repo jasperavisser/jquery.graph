@@ -1,0 +1,45 @@
+This jQuery plugin allows you to create a directed graph. Simply add any existing HTML elements to the graph as nodes, then define edges between those nodes.
+
+The edges of the graph are drawn on an HTML canvas, using an edge renderer of your preference.
+
+To use this plugin, you will need to include both it and jquery on the page:
+	<script type="text/javascript" src="jquery.js"></script>
+	<script type="text/javascript" src="jquery.graph.js"></script>
+
+To get started, add a <canvas> element to your page, with z-index above the background, but below the node elements:
+	<canvas style="z-index: 100;"></canvas>
+
+Let's say you want to add edges between these three divs:
+	<div id="parent" class="node">Parent</div>
+	<div class="child node">Child 1</div>
+	<div class="child node">Child 2</div>
+
+If you don't want the edges to go over the nodes, ensure that the divs have z-index greater than the canvas:
+	div.node {
+		z-index: 200;
+	}
+
+Then initialize the graph by calling:
+		var $graph = $("canvas").graph();
+
+Next add all elements that will serve as nodes to the graph: 
+		$graph.fnNode(".node");
+
+And finally, add edges from each parent to each child:
+		$graph.fnEdge(".parent", ".child");
+
+And that's it!
+
+You can use the jquery-ui plugin to make your node elements draggable. The graph will automically re-render itself as the node elements are dragged.
+
+You can specify a different color for each group of edges:
+		$graph.fnEdge(".parent", ".child", "red");
+
+You can choose a number of different edge rendering functions. Standard edge renderers supported are: "straight" and "bezier". Alternatively you can provide your own edge rendering function. For example:
+	$("canvas").graph({
+		renderEdge : function (source, target, color) {
+			...
+		} 
+	})
+
+Let me know what you think. Clone the project as you will. I am more than happy to pull contributions!

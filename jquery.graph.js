@@ -1,3 +1,26 @@
+/*
+Copyright (c) 2011 Jasper A. Visser, https://github.com/jasperavisser/jquery.graph/
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 /*jslint browser: true, plusplus: true */
 /*global jQuery: true */
 
@@ -180,8 +203,8 @@
 		/**
 		 * Add edges to the graph from all given sources to all given targets.
 		 *
-		 * @param sources array(HTMLElement) or jQuery Any number of source elements.
-		 * @param targets array(HTMLElement) or jQuery Any number of target elements.
+		 * @param sources array(HTMLElement) or jQuery or selector Any number of source elements.
+		 * @param targets array(HTMLElement) or jQuery or selector Any number of target elements.
 		 *
 		 * @returns jQuery Reference to self.
 		 */
@@ -203,7 +226,7 @@
 		/**
 		 * Add the given element to the graph as a node.
 		 * 
-		 * @param element HTMLElement or jQuery Any number of elements that serve as
+		 * @param element HTMLElement or jQuery or selector Any number of elements that serve as
 		 * nodes in the graph.
 		 * 
 		 * @returns jQuery Reference to self.
@@ -241,19 +264,25 @@
 		
 		// initialize graph
 		that = this;
-		return this.each(function () {
+		return this
+			.css("position", "fixed")
+			.css("height", "100%")
+			.css("left", "0px")
+			.css("top", "0px")
+			.css("width", "100%")
+			.each(function () {
 
-			// on resize or scroll window, render graph
-			$(window).bind("resize.graph", function () {
+				// on resize or scroll window, render graph
+				$(window).bind("resize.graph", function () {
+					that.fnRender();
+				});
+				$(window).bind("scroll.graph", function () {
+					that.fnRender();
+				});
+				
+				// render graph now
 				that.fnRender();
 			});
-			$(window).bind("scroll.graph", function () {
-				that.fnRender();
-			});
-			
-			// render graph now
-			that.fnRender();
-		});
 	};
 	
 }(jQuery));

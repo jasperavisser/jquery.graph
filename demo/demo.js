@@ -1,4 +1,8 @@
+/*jslint browser: true, plusplus: true */
+/*global jQuery: true, $: true */
+
 (function ($) {
+	"use strict";
 
 	/**
 	 * Magically layout the selected elements on the page.
@@ -69,6 +73,7 @@
  * @returns jQuery Elemented that was created. 
  */
 function createNode(properties) {
+	"use strict";
 	var node = $("#nodeBase").clone();
 	node.find(".title").text(properties.title);
 	node.find(".description").text(properties.description);
