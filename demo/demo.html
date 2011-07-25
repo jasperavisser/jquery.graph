@@ -1,0 +1,125 @@
+<!DOCTYPE html> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>jquery.graph</title>
+<style type="text/css">
+	body {
+		background: white;
+		font: 11pt ubuntu, arial, sans-serif;
+		margin: 0px;
+		padding: 0px;
+	}
+	canvas {
+		position: fixed;
+		height: 100%;
+		left: 0px;
+		top: 0px;
+		width: 100%;
+		z-index: 100;
+	}
+	div.node {
+		cursor: move;
+		position: absolute;
+		z-index: 200;
+	}
+	div.node .title {
+		background: crimson;
+		border-bottom: 1px solid black;
+		border-top-left-radius: 6px;
+		border-top-right-radius: 6px;
+		color: white;
+		font-size: 16pt;
+		padding: 3px 6px;
+	}
+	div.node .description {
+		background: ghostwhite;
+		border-bottom: 1px solid gainsboro;
+		border-left: 1px solid gainsboro;
+		border-right: 1px solid gainsboro;
+		border-bottom-left-radius: 6px;
+		border-bottom-right-radius: 6px;
+		color: black;
+		padding: 3px 6px;
+	}
+	p {
+		color: silver;
+		margin: 12px;
+	}
+</style>
+<script type="text/javascript" src="../jquery/jquery.js"></script>
+<script type="text/javascript" src="../jquery/jquery-ui.js"></script>
+<script type="text/javascript" src="../jquery.graph.js"></script>
+<script type="text/javascript" src="demo.js"></script>
+<script type="text/javascript"><!--
+
+	$(function() {
+		
+		// some background text
+		for (i = 0; i < 20; i++) {
+			$("body").append($("p:first").clone().show());
+		}
+	
+		// STEP 1: make some nodes
+		
+		// create self node
+		var self = createNode({
+			title : "Self 1",
+			description : "Lorem ipsum and so on ..."
+		});
+	
+		// create parent nodes
+		var parents = $();
+		for (var i = 2; i < 4; i++) {
+			var node = createNode({
+				title : "Parent " + i,
+				description : "Lorem ipsum and so on ..."
+			});
+			parents = parents.add(node);
+		}
+		
+		// create child nodes
+		var children = $();
+		for (var i = 4; i < 28; i++) {
+			var node = createNode({
+				title : "Child " + i,
+				description : "Lorem ipsum and so on ..."
+			});
+			children = children.add(node);
+		}
+		
+		// STEP 2: lay them out nicely
+	
+		// layout magick
+		parents.layout({
+			row : -1,
+			direction : "up"
+		});
+		self.layout();
+		children.layout({
+			row : 1,
+			direction : "down"
+		});
+	
+		// STEP 3: create a directed graph
+		
+		// create graph
+		var $graph = $("canvas").graph();
+
+		// add nodes
+		$graph.fnNode(".node");
+
+		// add edges
+		$graph.fnEdge(parents, self);
+		$graph.fnEdge(self, children);
+	});
+//--></script>
+</head>
+<body>
+	<p style="display: none;">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+	<canvas width="1000" height="600"></canvas>
+	<div id="nodeBase" class="node" style="display: none;">
+		<div class="title"></div>
+		<div class="description"></div>
+	</div>
+</body>
+</html>
