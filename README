@@ -6,27 +6,42 @@ To use this plugin, you will need to include both it and jquery on the page:
 	<script type="text/javascript" src="jquery.js"></script>
 	<script type="text/javascript" src="jquery.graph.js"></script>
 
-To get started, add a <canvas> element to your page, with z-index above the background, but below the node elements:
-	<canvas style="z-index: 100;"></canvas>
+To get started, choose a containing element for the graph (the <body> or some element with absolute or fixed position):
+	<style>
+		#container { position: absolute; width: 500px; height: 500px; }
+	</style>
+	...
+	<div id="container"></div>
 
 Let's say you want to add edges between these three divs:
-	<div id="parent" class="node">Parent</div>
-	<div class="child node">Child 1</div>
-	<div class="child node">Child 2</div>
+	<div id="container">
+		<div id="parent" class="node">Parent</div>
+		<div class="child node">Child 1</div>
+		<div class="child node">Child 2</div>
+	</div>
 
-If you don't want the edges to go over the nodes, ensure that the divs have z-index greater than the canvas:
-	div.node {
-		z-index: 200;
-	}
+If you don't want the edges to go over the nodes, ensure that the divs have z-index greater than the edges. By default, the edges will have z-index = 1.
+	<style>
+		...
+		div.node { z-index: 2; }
+	</style>
+
 
 Then initialize the graph by calling:
-		var $graph = $("canvas").graph();
+	<script type="text/javascript">
+		$(function () {
+			var $graph = $("#container").graph();
+		});
+		...
 
-Next add all elements that will serve as nodes to the graph: 
+Next add all elements that will serve as nodes to the graph:
 		$graph.fnNode(".node");
+		...
 
 And finally, add edges from each parent to each child:
 		$graph.fnEdge(".parent", ".child");
+		...
+	</script>
 
 And that's it!
 
@@ -36,8 +51,8 @@ You can specify a different color for each group of edges:
 		$graph.fnEdge(".parent", ".child", "red");
 
 You can choose a number of different edge rendering functions. Standard edge renderers supported are: "straight" and "bezier". Alternatively you can provide your own edge rendering function. For example:
-	$("canvas").graph({
-		renderEdge : function (source, target, color) {
+	$("#container").graph({
+		renderEdge : function (canvas, source, target, color) {
 			...
 		} 
 	})

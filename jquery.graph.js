@@ -28,6 +28,28 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	"use strict";
 
 	/**
+	 * Get the containing block or blocks for the selected elements.
+	 * 
+	 * @returns jQuery Containing blocks of selected elements.
+	 */
+	$.fn.containingBlock = function () {
+		var blocks = $();
+		
+		this.each(function () {
+			var element = $(this).parent();
+			while (element) {
+				if (element.is("body") || ["absolute", "fixed"].indexOf(element.css("position")) !== false) {
+					blocks = blocks.add(element);
+					break;
+				}
+				element = element.parent();
+			}
+		});
+		
+		return blocks;
+	};
+	
+	/**
 	 * Create a directed graph layer from an HTML canvas element.
 	 * 
 	 * @param settings object Settings to use for the graph.
@@ -44,22 +66,24 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			 * Render a bezier edge between the bottom-center of the source
 			 * element and the top-center of the target element.
 			 *
+			 * @param canvas jQuery Canvas element to draw on.
 			 * @param source jQuery Source element
 			 * @param target jQuery Target element
+			 * @param color string Color to draw this edge in.
 			 *
 			 * @returns undefined
 			 */
-			bezier : function (source, target, color) {
+			bezier : function (canvas, source, target, color) {
 				var sourceVertex, targetVertex, vertices, context;
 				
 				// get bezier vertices
 				sourceVertex = {
-					x : source.position().left - $(window).scrollLeft() + source.width() / 2,
-					y : source.position().top - $(window).scrollTop() + source.height()
+					x : source.position().left + source.width() / 2,
+					y : source.position().top + source.height()
 				};
 				targetVertex = {
-					x : target.position().left - $(window).scrollLeft() + target.width() / 2,
-					y : target.position().top - $(window).scrollTop()
+					x : target.position().left + target.width() / 2,
+					y : target.position().top
 				};
 				vertices = [
 					sourceVertex,
@@ -69,7 +93,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				];
 				
 				// the context
-				context = $("canvas")[0].getContext("2d");
+				context = canvas[0].getContext("2d");
 	
 				// draw bezier
 				context.moveTo(vertices[0].x, vertices[0].y);
@@ -99,26 +123,28 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			 * Render a straight edge between the bottom-center of the source
 			 * element and the top-center of the target element.
 			 *
+			 * @param canvas jQuery Canvas element to draw on.
 			 * @param source jQuery Source element
 			 * @param target jQuery Target element
+			 * @param color string Color to draw this edge in.
 			 *
 			 * @returns undefined
 			 */
-			straight : function (source, target, color) {
+			straight : function (canvas, source, target, color) {
 				var sourceVertex, targetVertex, context;
 				
 				// get vertices
 				sourceVertex = {
-					x : source.position().left - $(window).scrollLeft() + source.width() / 2,
-					y : source.position().top - $(window).scrollTop() + source.height()
+					x : source.position().left + source.width() / 2,
+					y : source.position().top + source.height()
 				};
 				targetVertex = {
-					x : target.position().left - $(window).scrollLeft() + target.width() / 2,
-					y : target.position().top - $(window).scrollTop()
+					x : target.position().left + target.width() / 2,
+					y : target.position().top
 				};
 				
 				// the context
-				context = $("canvas")[0].getContext("2d");
+				context = canvas[0].getContext("2d");
 	
 				// draw bezier
 				context.moveTo(sourceVertex.x, sourceVertex.y);
@@ -165,10 +191,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				
 				// for each target
 				that.edgeGroups[i].targets.each(function () {
-					var target = $(this);
 					
 					// render an edge
-					getEdgeRenderer(that.settings.renderEdge)(source, target, that.edgeGroups[i].color);
+					getEdgeRenderer(that.settings.renderEdge)(that.canvas, source, $(this), that.edgeGroups[i].color);
 				});
 			});
 		}
@@ -191,14 +216,38 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		// default settings
 		this.defaults = {
 			draggableNodes : true,
-			renderEdge : "bezier"
+			renderEdge : "bezier",
+			zindex : 1
 		};
 		
 		// given settings override default settings
 		this.settings = $.extend({}, this.defaults, settings);
-	
+		
+		// create canvas
+		this.canvas = $("<canvas>")
+			.css("position", "absolute")
+			.css("height", "100%")
+			.css("left", "0px")
+			.css("top", "0px")
+			.css("width", "100%")
+			.css("z-index", this.settings.zindex);
+		this.append(this.canvas);
+			
 		// groups of edges between source & target nodes
 		this.edgeGroups = [];
+		
+		// set of node elements
+		this.nodes = $();
+		
+		/**
+		 * Clear all edges from the graph.
+		 * 
+		 * @returns jQuery Reference to self.
+		 */
+		this.fnClear = function () {
+			this.edgeGroups = [];
+			return this;
+		};
 		
 		/**
 		 * Add edges to the graph from all given sources to all given targets.
@@ -233,15 +282,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		 */
 		that = this;
 		this.fnNode = function (element) {
-			element = $(element);
-		
-			// on drag, render graph
-			if (that.settings.draggableNodes) {
-				element.bind("drag.graph", function () {
-					that.fnRender();
-				});
-			}
-			
+			that.nodes = that.nodes.add(element);
 			return this;
 		};
 		
@@ -253,8 +294,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		this.fnRender = function () {
 			
 			// resize canvas
-			$(this)[0].width = $(this).width();
-			$(this)[0].height = $(this).height();
+			this.canvas[0].width = this.canvas.width();
+			this.canvas[0].height = this.canvas.height();
 			
 			// redraw all edges
 			renderEdgeGroups();
@@ -264,25 +305,33 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		
 		// initialize graph
 		that = this;
-		return this
-			.css("position", "fixed")
-			.css("height", "100%")
-			.css("left", "0px")
-			.css("top", "0px")
-			.css("width", "100%")
-			.each(function () {
-
-				// on resize or scroll window, render graph
+		return this.each(function () {
+				
+			// if the containing block is body, re-render graph when window is resized
+			if ($(this).is("body")) {
 				$(window).bind("resize.graph", function () {
 					that.fnRender();
 				});
-				$(window).bind("scroll.graph", function () {
-					that.fnRender();
-				});
-				
-				// render graph now
-				that.fnRender();
-			});
+			}
+		
+			// when a node is dragged, re-render graph
+			if (that.settings.draggableNodes) {
+				$(window)
+					.delegate("*", "drag.graph", function () {
+						if (that.nodes.is(this)) {
+							that.fnRender();
+						}
+					})
+					.delegate("*", "dragstop.graph", function () {
+						if (that.nodes.is(this)) {
+							that.fnRender();
+						}
+					});
+			}
+			
+			// render graph now
+			that.fnRender();
+		});
 	};
 	
 }(jQuery));

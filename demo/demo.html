@@ -7,12 +7,13 @@
 		background: white;
 		font: 11pt ubuntu, arial, sans-serif;
 		margin: 0px;
+		min-height: 600px;
 		padding: 0px;
 	}
 	div.node {
 		cursor: move;
 		position: absolute;
-		z-index: 200;
+		z-index: 2;
 	}
 	div.node .title {
 		background: crimson;
@@ -42,73 +43,9 @@
 <script type="text/javascript" src="../jquery/jquery-ui.js"></script>
 <script type="text/javascript" src="../jquery.graph.js"></script>
 <script type="text/javascript" src="demo.js"></script>
-<script type="text/javascript"><!--
-
-	$(function() {
-		
-		// STEP 1: make some nodes
-		
-		// create self node
-		var self = createNode({
-			title : "Self 1",
-			description : "Lorem ipsum and so on ..."
-		});
-	
-		// create parent nodes
-		var parents = $();
-		for (var i = 2; i < 4; i++) {
-			var node = createNode({
-				title : "Parent " + i,
-				description : "Lorem ipsum and so on ..."
-			});
-			parents = parents.add(node);
-		}
-		
-		// create child nodes
-		var children = $();
-		for (var i = 4; i < 28; i++) {
-			var node = createNode({
-				title : "Child " + i,
-				description : "Lorem ipsum and so on ..."
-			});
-			children = children.add(node);
-		}
-		
-		// STEP 2: lay them out nicely
-	
-		// layout magick
-		parents.layout({
-			row : -1,
-			direction : "up"
-		});
-		self.layout();
-		children.layout({
-			row : 1,
-			direction : "down"
-		});
-	
-		// STEP 3: create a directed graph
-		
-		// create graph
-		var $graph = $("canvas").graph();
-
-		// add nodes
-		$graph.fnNode(".node");
-
-		// add edges
-		$graph.fnEdge(parents, self);
-		$graph.fnEdge(self, children);
-
-		// some background text
-		for (i = 0; i < 20; i++) {
-			$("body").append($("p:first").clone().show());
-		}
-	});
-//--></script>
 </head>
-<body>
+<body id="container">
 	<p style="display: none;">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
-	<canvas style="z-index: 100;"></canvas>
 	<div id="nodeBase" class="node" style="display: none;">
 		<div class="title"></div>
 		<div class="description"></div>
